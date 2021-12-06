@@ -4,9 +4,9 @@ This is the Gradle project:
 
 ```
 .
-├── app
+├── producer
 │   └── build.gradle.kts
-├── lib
+├── consumer
 │   └── build.gradle.kts
 └── settings.gradle.kts
 ```
