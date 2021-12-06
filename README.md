@@ -11,10 +11,8 @@ This is the Gradle project:
 └── settings.gradle.kts
 ```
 
-This is the producer:
-
 ```
-# lib/build.gradle.kts
+# producer/build.gradle.kts
 # - Register a single task, which creates a file.
 # - Publish an artifact which contains just that file.
 
@@ -37,12 +35,10 @@ artifacts {
 }
 ```
 
-This is the consumer:
-
 ```
-# app/build.gradle.kts
-# - Declare a dependency on app to consume its published configuration
-# - Register a single task, which resolves that configuration and uses the file.
+# consumer/build.gradle.kts
+# - Declare a dependency on the producer to consume its published configuration.
+# - Register a single task, which resolves that configuration and uses the file. Explicitly depend on the execution of the producing task.
 
 val sharedConfiguration: Configuration by configurations.creating {
     isCanBeConsumed = false
