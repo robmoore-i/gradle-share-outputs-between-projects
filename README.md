@@ -54,7 +54,7 @@ dependencies {
 }
 
 tasks.register("showFile") {
-    dependsOn(":producer:makeFile")
+    inputs.files(sharedConfiguration)
     doFirst {
         logger.lifecycle(sharedConfiguration.singleFile.absolutePath)
     }
