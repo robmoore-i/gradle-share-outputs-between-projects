@@ -13,5 +13,5 @@ val sharedConfiguration: Configuration by configurations.creating {
 }
 
 artifacts {
-    add(sharedConfiguration.name, makeFile.map { it.outputs.files.singleFile })
+    add(sharedConfiguration.name, makeFile)
 }
