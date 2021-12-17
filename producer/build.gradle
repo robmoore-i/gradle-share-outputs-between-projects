@@ -16,5 +16,5 @@ configurations {
 }
 
 artifacts {
-    sharedConfiguration(makeFile.map { task -> task.outputs.files.singleFile })
+    sharedConfiguration(makeFile)
 }
