@@ -5,58 +5,65 @@ This is the Gradle project:
 ```
 .
 ├── producer
-│   └── build.gradle.kts
+│   └── build.gradle
 ├── consumer
-│   └── build.gradle.kts
-└── settings.gradle.kts
+│   └── build.gradle
+└── settings.gradle
 ```
 
 ```
 
-### producer/build.gradle.kts ###
+### producer/build.gradle ###
 
 # - Register a single task, which creates a file.
 # - Publish an artifact which contains just that file.
 
-val outputFile = project.layout.buildDirectory.dir("some-subdir").map { it.file("shared-file.txt") }
-val makeFile = tasks.register("makeFile") {
-    outputs.file(outputFile)
-    doFirst {
-        outputFile.get().asFile
-            .writeText("This file is shared across Gradle subprojects.")
+import java.nio.file.Files
+
+def outputFile = project.layout.buildDirectory.dir("some-subdir").map { it.file("shared-file.txt") }
+def makeFile = tasks.register("makeFile", DefaultTask) {
+    it.outputs.file(outputFile)
+    it.doFirst {
+        Files.writeString(outputFile.get().asFile.toPath(), "This file is shared across Gradle subprojects.")
     }
 }
 
-val sharedConfiguration: Configuration by configurations.creating {
-    isCanBeConsumed = true
-    isCanBeResolved = false
+configurations {
+    sharedConfiguration {
+        canBeConsumed = true
+        canBeResolved = false
+    }
 }
 
 artifacts {
-    add(sharedConfiguration.name, makeFile.map { it.outputs.files.singleFile })
+    sharedConfiguration(makeFile.map { task -> task.outputs.files.singleFile })
 }
 ```
 
 ```
 
-### consumer/build.gradle.kts ###
+### consumer/build.gradle ###
 
 # - Declare a dependency on the producer to consume its published configuration.
 # - Register a single task, which resolves that configuration and uses the file. Explicitly depend on the execution of the producing task.
 
-val sharedConfiguration: Configuration by configurations.creating {
-    isCanBeConsumed = false
-    isCanBeResolved = true
+configurations {
+    sharedConfiguration {
+        canBeConsumed = false
+        canBeResolved = true
+    }
 }
 
 dependencies {
-    add(sharedConfiguration.name, project(mapOf("path" to ":producer", "configuration" to "sharedConfiguration")))
+    sharedConfiguration(project("path": ":producer", "configuration": "sharedConfiguration"))
 }
 
+def sharedConfiguration = configurations.getByName("sharedConfiguration")
+
 tasks.register("showFile") {
-    inputs.files(sharedConfiguration)
-    doFirst {
-        logger.lifecycle(sharedConfiguration.singleFile.absolutePath)
+    it.inputs.files(sharedConfiguration)
+    it.doFirst {
+        logger.lifecycle("File is at {}", sharedConfiguration.singleFile.absolutePath)
     }
 }
 ```
