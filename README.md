@@ -18,9 +18,8 @@ This is the Gradle project:
 # - Register a single task, which creates a file.
 # - Publish an artifact which contains just that file.
 
-def sharedFile = project.layout.buildDirectory.file("some-subdir/shared-file.txt")
-
 def makeFile = tasks.register("makeFile") {
+    def sharedFile = project.layout.buildDirectory.file("some-subdir/shared-file.txt")
     outputs.file(sharedFile)
     doFirst {
         sharedFile.get().asFile << "This file is shared across Gradle subprojects."
