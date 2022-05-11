@@ -18,22 +18,22 @@ This is the Gradle project:
 # - Register a single task, which creates a file.
 # - Publish an artifact which contains just that file.
 
-val outputFile = project.layout.buildDirectory.dir("some-subdir").map { it.file("shared-file.txt") }
+val sharedFile = project.layout.buildDirectory.file("some-subdir/shared-file.txt")
+
 val makeFile = tasks.register("makeFile") {
-    outputs.file(outputFile)
+    outputs.file(sharedFile)
     doFirst {
-        outputFile.get().asFile
-            .writeText("This file is shared across Gradle subprojects.")
+        sharedFile.get().asFile.writeText("This file is shared across Gradle subprojects.")
     }
 }
 
-val sharedConfiguration: Configuration by configurations.creating {
+val sharedConfiguration by configurations.creating {
     isCanBeConsumed = true
     isCanBeResolved = false
 }
 
 artifacts {
-    add(sharedConfiguration.name, makeFile.map { it.outputs.files.singleFile })
+    add(sharedConfiguration.name, sharedFile)
 }
 ```
 
@@ -54,9 +54,10 @@ dependencies {
 }
 
 tasks.register("showFile") {
-    inputs.files(sharedConfiguration)
+    val sharedFiles: FileCollection = sharedConfiguration
+    inputs.files(sharedFiles)
     doFirst {
-        logger.lifecycle(sharedConfiguration.singleFile.absolutePath)
+        logger.lifecycle("File is at {}", sharedFiles.singleFile.absolutePath)
     }
 }
 ```
