@@ -60,7 +60,7 @@ tasks.register("showFile") {
     FileCollection sharedFiles = configurations.getByName("sharedConfiguration")
     inputs.files(sharedFiles)
     doFirst {
-        logger.lifecycle("File is at {}", sharedFiles.singleFile.absolutePath)
+        logger.lifecycle("Shared file contains the text: '{}'", sharedFiles.singleFile.text)
     }
 }
 ```
